@@ -1,0 +1,12 @@
+export default async function handler(req, res) {
+    if (req.method === 'POST') {
+        const { message } = req.body;
+        
+        // এখানে টেলিগ্রাম বা অন্য নোটিফিকেশন সিস্টেম এড করা যাবে
+        console.log("New Message for Echo Mind:", message);
+
+        return res.status(200).json({ success: true });
+    } else {
+        res.status(405).json({ message: 'Method not allowed' });
+    }
+}
