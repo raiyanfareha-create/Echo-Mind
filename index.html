@@ -10,37 +10,49 @@
             background: linear-gradient(135deg, #d4af37 0%, #f9f295 50%, #b8860b 100%);
         }
         .luxury-shadow {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
         body {
-            background-color: #faf9f6; /* Off-white background */
+            background-color: #faf9f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Custom scrollbar for chat box */
+        #chat-box::-webkit-scrollbar {
+            width: 4px;
+        }
+        #chat-box::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body class="h-screen flex flex-col items-center justify-center p-2 sm:p-4">
+
     <div class="w-full max-w-md bg-white rounded-2xl luxury-shadow flex flex-col h-[90vh] border border-gray-100 overflow-hidden">
         
         <div class="p-4 gold-gradient text-gray-900 font-bold text-center shadow-md">
-            <h1 class="text-xl tracking-wider uppercase">Echo Mind</h1>
-            <p class="text-[10px] opacity-80">Powered by Ar Raiyan Ecosystem</p>
+            <h1 class="text-xl tracking-wider uppercase font-extrabold">Echo Mind</h1>
+            <p class="text-[10px] opacity-80 font-semibold italic">A Smart Solution by Ar Raiyan Ecosystem</p>
         </div>
 
         <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4 bg-[#fdfbf7]">
             <div class="text-left">
-                <span class="bg-gray-200 text-gray-800 p-3 rounded-2xl rounded-tl-none inline-block max-w-[80%] text-sm">
-                    হ্যালো! আমি **Echo Mind**। আপনাকে কীভাবে সাহায্য করতে পারি?
+                <span class="bg-gray-200 text-gray-800 p-3 rounded-2xl rounded-tl-none inline-block max-w-[85%] text-sm shadow-sm border border-gray-300">
+                    Hello! Ami **Echo Mind**। Ar Raiyan Ecosystem-er pokhsho theke apnake shagoto janachchi. Ami apnake kivabe shahajjo korte pari?
                 </span>
             </div>
         </div>
 
-        <div class="p-4 bg-white border-t border-gray-100 flex gap-2">
-            <input id="user-input" type="text" 
-                class="flex-1 border border-gray-200 p-3 rounded-full outline-none focus:border-[#d4af37] transition-all text-sm" 
-                placeholder="আপনার প্রশ্নটি এখানে লিখুন...">
-            <button onclick="sendMessage()" 
-                class="gold-gradient text-gray-900 font-bold px-6 py-2 rounded-full hover:opacity-90 transition-all shadow-md text-sm">
-                পাঠান
-            </button>
+        <div class="p-4 bg-white border-t border-gray-100 flex flex-col gap-2">
+            <div class="flex gap-2">
+                <input id="user-input" type="text" 
+                    class="flex-1 border border-gray-300 p-3 rounded-full outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] transition-all text-sm shadow-inner" 
+                    placeholder="Apnar proshno ekhane likhun...">
+                <button onclick="sendMessage()" 
+                    class="gold-gradient text-gray-900 font-bold px-6 py-2 rounded-full hover:scale-105 active:scale-95 transition-all shadow-md text-sm border border-[#b8860b]">
+                    Pathan
+                </button>
+            </div>
         </div>
     </div>
 
@@ -49,12 +61,13 @@
             const input = document.getElementById('user-input');
             const chatBox = document.getElementById('chat-box');
             const message = input.value.trim();
+            
             if (!message) return;
 
-            // User Message
+            // User Message UI
             chatBox.innerHTML += `
                 <div class="text-right">
-                    <span class="gold-gradient text-gray-900 p-3 rounded-2xl rounded-tr-none inline-block max-w-[80%] text-sm shadow-sm">
+                    <span class="gold-gradient text-gray-900 p-3 rounded-2xl rounded-tr-none inline-block max-w-[85%] text-sm shadow-md border border-[#b8860b]">
                         ${message}
                     </span>
                 </div>`;
@@ -62,30 +75,47 @@
             input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
+            // Typing Indicator
+            const typingId = "typing-" + Date.now();
+            chatBox.innerHTML += `
+                <div id="${typingId}" class="text-left animate-pulse">
+                    <span class="bg-gray-100 text-gray-400 p-2 rounded-xl text-xs italic">Echo Mind chinta korche...</span>
+                </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
             try {
+                // API Call to Vercel Serverless Function
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({ message: message })
                 });
-                const data = await response.json();
 
-                // Bot Message
+                const data = await response.json();
+                
+                // Remove Typing Indicator
+                document.getElementById(typingId).remove();
+
+                // Bot Message UI
                 chatBox.innerHTML += `
                     <div class="text-left">
-                        <span class="bg-gray-200 text-gray-800 p-3 rounded-2xl rounded-tl-none inline-block max-w-[80%] text-sm shadow-sm">
+                        <span class="bg-white text-gray-800 p-3 rounded-2xl rounded-tl-none inline-block max-w-[85%] text-sm shadow-sm border border-gray-200 leading-relaxed">
                             ${data.reply}
                         </span>
                     </div>`;
             } catch (error) {
-                chatBox.innerHTML += `<div class="text-center text-red-400 text-xs">Error: উত্তর পাওয়া যায়নি।</div>`;
+                document.getElementById(typingId).remove();
+                chatBox.innerHTML += `<div class="text-center text-red-500 text-[10px]">Error: Connection faliure!</div>`;
             }
+            
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Enter key support
+        // Handle Enter Key
         document.getElementById('user-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendMessage();
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
         });
     </script>
 </body>
