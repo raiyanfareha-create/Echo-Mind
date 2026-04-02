@@ -1,11 +1,6 @@
 {
-  "name": "ar-raiyan-ai-bot",
+  "name": "echo-mind",
   "version": "1.0.0",
-  "description": "AI Chatbot using Gemini API",
-  "main": "index.html",
-  "scripts": {
-    "start": "serve ."
-  },
   "dependencies": {
     "node-fetch": "^3.3.0"
   }
