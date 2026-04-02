@@ -1,94 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echo Mind - AI Assistant</title>
-    <style>
-        :root { --gold: #D4AF37; --dark-gold: #B8860B; --marble-bg: #fdfdfd; }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; }
-        
-        /* Floating Bubble */
-        #chat-bubble {
-            position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px;
-            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.3); z-index: 9999;
-            transition: transform 0.3s;
-        }
-        #chat-bubble:hover { transform: scale(1.1); }
-
-        /* Chat Window */
-        #chat-window {
-            position: fixed; bottom: 100px; right: 25px; width: 360px; height: 520px;
-            background: white; border-radius: 18px; display: none; flex-direction: column;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.2); border: 1.5px solid var(--gold); overflow: hidden; z-index: 9998;
-        }
-
-        /* Header */
-        .header { 
-            background: #fff; border-bottom: 2px solid var(--gold); padding: 18px; 
-            text-align: center; background-image: url('https://www.transparenttextures.com/patterns/marble.png');
-        }
-        .header h2 { margin: 0; color: var(--dark-gold); font-size: 20px; letter-spacing: 1px; }
-
-        /* Messages */
-        .messages { flex: 1; padding: 20px; overflow-y: auto; background: var(--marble-bg); display: flex; flex-direction: column; }
-        .bot-msg, .user-msg { margin-bottom: 12px; padding: 12px 16px; border-radius: 15px; max-width: 80%; font-size: 14.5px; line-height: 1.5; }
-        .bot-msg { background: #fff; color: #333; align-self: flex-start; border: 1px solid #eee; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
-        .user-msg { background: var(--gold); color: white; align-self: flex-end; box-shadow: -2px 2px 5px rgba(0,0,0,0.1); }
-
-        /* Input Area */
-        .input-area { display: flex; border-top: 1px solid #f0f0f0; padding: 15px; background: #fff; }
-        .input-area input { flex: 1; border: none; outline: none; padding: 10px; font-size: 14px; }
-        .input-area button { background: var(--gold); color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    </style>
+    <title>Ar Raiyan AI Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div id="chat-bubble" onclick="toggleChat()">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-    </div>
-
-    <div id="chat-window">
-        <div class="header"><h2>Echo Mind</h2></div>
-        <div id="msg-container" class="messages">
-            <div class="bot-msg">আসসালামু আলাইকুম! <b>Echo Mind</b>-এ আপনাকে স্বাগতম। আমি কীভাবে আপনাকে সাহায্য করতে পারি?</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="userInput" placeholder="এখানে লিখুন..." onkeypress="if(event.key === 'Enter') sendMessage()">
-            <button onclick="sendMessage()">Send</button>
+<body class="bg-gray-100 h-screen flex flex-col items-center p-4">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-lg flex flex-col h-[80vh]">
+        <div class="p-4 bg-yellow-500 text-white font-bold rounded-t-lg text-center">Ar Raiyan AI Assistant</div>
+        <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-4"></div>
+        <div class="p-4 border-t flex gap-2">
+            <input id="user-input" type="text" class="flex-1 border p-2 rounded" placeholder="আপনার প্রশ্ন লিখুন...">
+            <button onclick="sendMessage()" class="bg-yellow-600 text-white px-4 py-2 rounded">পাঠান</button>
         </div>
     </div>
 
     <script>
-        function toggleChat() {
-            const win = document.getElementById('chat-window');
-            win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-        }
-
         async function sendMessage() {
-            const input = document.getElementById('userInput');
+            const input = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
             const message = input.value.trim();
             if (!message) return;
 
-            const container = document.getElementById('msg-container');
-            container.innerHTML += `<div class="user-msg">${message}</div>`;
+            chatBox.innerHTML += `<div class="text-right"><span class="bg-blue-100 p-2 rounded inline-block">${message}</span></div>`;
             input.value = '';
-            container.scrollTop = container.scrollHeight;
 
-            // API Call
-            try {
-                await fetch('/api/send-message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
-            } catch (err) { console.error("Error sending to server"); }
-
-            setTimeout(() => {
-                container.innerHTML += `<div class="bot-msg">ধন্যবাদ। আপনার বার্তাটি গ্রহণ করা হয়েছে। <b>Echo Mind</b>-এর প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।</div>`;
-                container.scrollTop = container.scrollHeight;
-            }, 1000);
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+            const data = await response.json();
+            chatBox.innerHTML += `<div class="text-left"><span class="bg-gray-200 p-2 rounded inline-block">${data.reply}</span></div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
 </body>
